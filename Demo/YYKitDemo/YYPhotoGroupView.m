@@ -243,6 +243,8 @@
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, assign) CGPoint panGestureBeginPoint;
+
+@property (nonatomic, assign) BOOL fromNavigationControllerInteractivePopEnable;
 @end
 
 @implementation YYPhotoGroupView
@@ -367,6 +369,17 @@
     _fromView = fromView;
     _toContainerView = toContainer;
     
+    UINavigationController *toVC = (UINavigationController *)self.toContainerView.viewController;
+    if ([toVC respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        _fromNavigationControllerInteractivePopEnable = toVC.interactivePopGestureRecognizer.isEnabled;
+        toVC.interactivePopGestureRecognizer.enabled = NO;
+    } else {
+        UIViewController *toVC = self.viewController;
+        if (toVC.navigationController && [toVC.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+            toVC.navigationController.interactivePopGestureRecognizer.enabled = _fromNavigationControllerInteractivePopEnable;
+        }
+    }
+    
     NSInteger page = -1;
     for (NSUInteger i = 0; i < self.groupItems.count; i++) {
         if (fromView == ((YYPhotoGroupItem *)self.groupItems[i]).thumbView) {
@@ -404,7 +417,6 @@
     [UIView setAnimationsEnabled:YES];
     _fromNavigationBarHidden = [UIApplication sharedApplication].statusBarHidden;
     [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone];
-    
     
     YYPhotoGroupCell *cell = [self cellForPage:self.currentPage];
     YYPhotoGroupItem *item = _groupItems[self.currentPage];
@@ -484,6 +496,17 @@
     [UIView setAnimationsEnabled:YES];
     
     [[UIApplication sharedApplication] setStatusBarHidden:_fromNavigationBarHidden withAnimation:animated ? UIStatusBarAnimationFade : UIStatusBarAnimationNone];
+    
+    UINavigationController *toVC = (UINavigationController *)self.toContainerView.viewController;
+    if ([toVC respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        toVC.interactivePopGestureRecognizer.enabled = _fromNavigationControllerInteractivePopEnable;
+    } else {
+        UIViewController *toVC = self.viewController;
+        if (toVC.navigationController && [toVC.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+            toVC.navigationController.interactivePopGestureRecognizer.enabled = _fromNavigationControllerInteractivePopEnable;
+        }
+    }
+    
     NSInteger currentPage = self.currentPage;
     YYPhotoGroupCell *cell = [self cellForPage:currentPage];
     YYPhotoGroupItem *item = _groupItems[currentPage];
@@ -632,10 +655,10 @@
 
 
 - (void)hidePager {
-        [UIView animateWithDuration:0.3 delay:0.8 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseOut animations:^{
-            _pager.alpha = 0;
-        }completion:^(BOOL finish) {
-        }];
+    [UIView animateWithDuration:0.3 delay:0.8 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseOut animations:^{
+        _pager.alpha = 0;
+    }completion:^(BOOL finish) {
+    }];
 }
 
 /// enqueue invisible cells for reuse
