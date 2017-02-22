@@ -558,7 +558,7 @@
     } else {
         _background.image = _snapshorImageHideFromView;
     }
-    
+
     
     if (isFromImageClipped) {
         [cell scrollToTopAnimated:NO];
@@ -785,7 +785,7 @@
     if ([activityViewController respondsToSelector:@selector(popoverPresentationController)]) {
         activityViewController.popoverPresentationController.sourceView = self;
     }
-    
+
     UIViewController *toVC = self.toContainerView.viewController;
     if (!toVC) toVC = self.viewController;
     [toVC presentViewController:activityViewController animated:YES completion:nil];
